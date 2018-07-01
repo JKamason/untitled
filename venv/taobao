@@ -1,0 +1,51 @@
+from selenium import webdriver
+from selenium.common.exceptions import TimeoutException
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+browser=webdriver.Chrome()
+def tao_bao():
+    try:
+        browser.get('https://www.taobao.com/')
+        input = WebDriverWait(browser, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "#q")))
+
+        submit = WebDriverWait(browser, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR, "#J_TSearchForm > div.search-button > button")))
+        input.send_keys('meishi')
+        submit.click()
+        input_2= WebDriverWait(browser, 10).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "#mainsrp-pager > div > div > div > div.total")))
+        print(input_2.text)
+
+
+
+    except TimeoutException:
+        return tao_bao()
+def change_page(page_num):
+
+    try:
+        input = WebDriverWait(browser, 10).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "#mainsrp-pager > div > div > div > div.form > input")))
+
+        submit = WebDriverWait(browser, 10).until(
+            EC.element_to_be_clickable((By.CSS_SELECTOR,"#mainsrp-pager > div > div > div > div.form > span.btn.J_Submit")))
+
+        input.clear()
+        input.send_keys(page_num)
+        submit.click()
+        #判断是否已经跳转到指定的页码
+        WebDriverWait(browser,20).until((EC.text_to_be_present_in_element(By.CSS_SELECTOR,"#mainsrp-pager > div > div > div > ul > li.item.active > span"),str(page_num)))
+    except TimeoutException:
+        return change_page(page_num)
+def main():
+    tao_bao()
+    total = 100
+    for i in range(2,total+1):
+        change_page(i)
+
+
+
+if __name__=='__main__':
+    main()
